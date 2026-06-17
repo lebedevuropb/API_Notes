@@ -1,0 +1,5 @@
+BASE_URL = "http://185.240.103.201:8000"
+REGISTER_ENDPOINT = "/api/register"
+LOGIN_ENDPOINT = "/api/login"
+NOTES_ENDPOINT = "/api/notes"
+NOTE_BY_ID_ENDPOINT = "/api/notes/{note_id}"
