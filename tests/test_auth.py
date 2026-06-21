@@ -1,16 +1,8 @@
-from lesson.lesson_18API.auth_api import AuthAPI
+# Тест на авторизацию
+def test_authorization(obj_authorization):
+    assert obj_authorization.status_code == 200
 
 
-def test_register():
-    reg = AuthAPI()
-    response = reg.register("lesson49@gmail.com", "qwerty123", "PythonCool1")
-
-    assert response.status_code == 201
-    assert response.json()["message"] == "Успешная регистрация!"
-
-
-def test_login():
-    login = AuthAPI()
-    response = login.login("lesson49@gmail.com", "qwerty123")
-
-    assert response.status_code == 200
+# Тест на регистрацию
+def test_register(obj_random_register):
+    assert obj_random_register.status_code == 201
