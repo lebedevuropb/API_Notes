@@ -21,7 +21,7 @@ def test_register(obj_register):
 
 # Тест на проверку регистрации с неверным email, по сваггеру 400, но на деле приходит 500
 def test_register_bad_request(obj_register):
-    response = obj_register.obj_register("1", 435231, "Username")
+    response = obj_register.register("1", 435231, "Username")
     assert response.status_code == 500, \
         f"Ожидался статус 500, получен {response.status_code}, в сваггере 400, но 400 не вызывается"
 
@@ -37,6 +37,6 @@ def test_register_invalid_email(obj_register):
 # Тест проверки не зарегистрированного логина
 def test_authorization_invalid(obj_login):
     response = obj_login.login(generate_email(), generate_password())
-    assert response.status_code == 401, f"Ожидался статус 409, получен {response.status_code}"
+    assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Ошибка авторизации... Пожалуйста, проверь почту или пароль", \
         "Отсутствует сообщение 'Ошибка авторизации... Пожалуйста, проверь почту или пароль'"

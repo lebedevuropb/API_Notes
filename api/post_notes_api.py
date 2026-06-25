@@ -6,4 +6,4 @@ class PostNotesApi(BaseApi):
 
     def create_note(self, headers, content: str, title: str):
         json = {"content": content, "title": title}
-        return self.post(self.ENDPOINT, json, headers)
+        return self.post(self.ENDPOINT, json=json, headers=headers)
