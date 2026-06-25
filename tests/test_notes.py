@@ -1,4 +1,4 @@
-from tests.generation import generate_note_title, generate_note_content
+from utils.generation import generate_note_title, generate_note_content
 
 
 # Позитивные проверки

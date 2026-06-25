@@ -1,4 +1,4 @@
-from tests.generation import generate_email, generate_username, generate_password
+from utils.generation import generate_email, generate_username, generate_password
 
 
 # Позитивные тесты

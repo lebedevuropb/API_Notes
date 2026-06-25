@@ -1,7 +1,7 @@
 from api.base_api import BaseApi
 
 
-class Notes(BaseApi):
+class GetNote(BaseApi):
     ENDPOINT = "api/notes"
 
     def get_note(self, headers):
