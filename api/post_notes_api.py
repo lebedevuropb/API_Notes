@@ -1,7 +1,7 @@
 from base_api import BaseAPI
 
 
-class Post_notesAPI(BaseAPI):
+class PostNotesAPI(BaseAPI):
     ENDPOINT = "api/notes"
 
     def create_notes(self, headers, content: str, title: str):
