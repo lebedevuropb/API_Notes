@@ -1,8 +1,8 @@
-from base_api import BaseAPI
+from api.base_api import BaseApi
 
 
-class Notes(BaseAPI):
+class Notes(BaseApi):
     ENDPOINT = "api/notes"
 
-    def get_notes(self, headers):
+    def get_note(self, headers):
         return self.get(self.ENDPOINT, headers)

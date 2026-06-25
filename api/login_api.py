@@ -1,7 +1,7 @@
-from base_api import BaseAPI
+from api.base_api import BaseApi
 
 
-class LoginApi(BaseAPI):
+class LoginApi(BaseApi):
     ENDPOINT = "api/login"
 
     def login(self, email: str, password: str):

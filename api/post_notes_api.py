@@ -1,9 +1,9 @@
-from base_api import BaseAPI
+from api.base_api import BaseApi
 
 
-class PostNotesAPI(BaseAPI):
+class PostNotesApi(BaseApi):
     ENDPOINT = "api/notes"
 
-    def create_notes(self, headers, content: str, title: str):
+    def create_note(self, headers, content: str, title: str):
         json = {"content": content, "title": title}
         return self.post(self.ENDPOINT, json, headers)

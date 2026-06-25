@@ -1,16 +1,15 @@
 import pytest
 from api.login_api import LoginApi
-from api.register_api import RegisterAPI
+from api.register_api import RegisterApi
 from api.notes_api import Notes
-from api.post_notes_api import PostNotesAPI
+from api.post_notes_api import PostNotesApi
 from api.delete_notes_api import DeleteNotesApi
-from tests.generation import generate_email, generate_username, generate_password, generate_note_content
-from tests.generation import generate_note_title
+from tests.generation import generate_note_title, generate_note_content
 
 
 @pytest.fixture
 def obj_register():
-    return RegisterAPI()
+    return RegisterApi()
 
 
 @pytest.fixture
@@ -45,17 +44,13 @@ def auth_headers(token):
 
 
 @pytest.fixture
+def create_notes(obj_post_notes, auth_headers):
+    return obj_post_notes.create_note(auth_headers, generate_note_content(), generate_note_title())
+
+
+@pytest.fixture
 def cleanup_note(obj_delete_notes, auth_headers):
     note_ids = []
     yield note_ids.append
     for note_id in note_ids:
-        obj_delete_notes.delete_note(auth_headers, note_id)
-
-
-@pytest.fixture
-def random_user():
-    return {
-        "email": generate_email(),
-        "password": generate_password(),
-        "username": generate_username()
-    }
+        obj_delete_notes.delete_note(note_id, auth_headers)

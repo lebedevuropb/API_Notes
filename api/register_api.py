@@ -1,7 +1,7 @@
-from base_api import BaseAPI
+from api.base_api import BaseApi
 
 
-class RegisterAPI(BaseAPI):
+class RegisterApi(BaseApi):
     ENDPOINT = "api/register"
 
     def register(self, email: str, password: str, username: str):

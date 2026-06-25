@@ -1,7 +1,7 @@
 import requests
 
 
-class BaseAPI:
+class BaseApi:
     BASE_URL = "http://185.240.103.201:8000/"
 
     def get(self, endpoint, headers=None):

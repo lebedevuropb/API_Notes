@@ -1,7 +1,7 @@
-from base_api import BaseAPI
+from api.base_api import BaseApi
 
 
-class DeleteNotesApi(BaseAPI):
+class DeleteNotesApi(BaseApi):
     ENDPOINT = "api/notes/"
 
     def delete_note(self, note_id, headers):
