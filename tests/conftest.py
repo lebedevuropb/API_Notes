@@ -9,34 +9,34 @@ from utils.generation import generate_note_title, generate_note_content
 
 # Инициализация API-клиентов
 @pytest.fixture
-def obj_register():
+def register_api():
     return RegisterApi()
 
 
 @pytest.fixture
-def obj_login():
+def login_api():
     return LoginApi()
 
 
 @pytest.fixture
-def obj_get_notes():
+def get_note_api():
     return GetNote()
 
 
 @pytest.fixture
-def obj_delete_notes():
+def delete_note_api():
     return DeleteNotesApi()
 
 
 @pytest.fixture
-def obj_post_notes():
+def post_note_api():
     return PostNotesApi()
 
 
 # Токен
 @pytest.fixture
-def token(obj_login):
-    response = obj_login.login("loginpermonents@yandex.ru", "qwerty123")
+def token(login_api):
+    response = login_api.login("loginpermonents@yandex.ru", "qwerty123")
     return response.json()["token"]
 
 
@@ -47,13 +47,27 @@ def auth_headers(token):
 
 # Пред- и постусловия
 @pytest.fixture
-def create_notes(obj_post_notes, auth_headers):
-    return obj_post_notes.create_note(auth_headers, generate_note_content(), generate_note_title())
+def created_note(post_note_api, get_note_api, auth_headers):
+    title = generate_note_title()
+    content = generate_note_content()
+    post_note_api.create_note(auth_headers, content, title)
+    note = get_note_api.find_note_by_title(auth_headers, title)
+    yield {"id": note["id"], "title": title}
 
 
 @pytest.fixture
-def cleanup_note(obj_delete_notes, auth_headers):
+def note_for_delete(post_note_api, get_note_api, delete_note_api, auth_headers):
+    title = generate_note_title()
+    content = generate_note_content()
+    post_note_api.create_note(auth_headers, content, title)
+    note = get_note_api.find_note_by_title(auth_headers, title)
+    yield note["id"]
+    delete_note_api.delete_note(note["id"], auth_headers)
+
+
+@pytest.fixture
+def cleanup_note(delete_note_api, auth_headers):
     note_ids = []
     yield note_ids.append
     for note_id in note_ids:
-        obj_delete_notes.delete_note(note_id, auth_headers)
+        delete_note_api.delete_note(note_id, auth_headers)
