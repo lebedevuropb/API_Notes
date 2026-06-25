@@ -33,17 +33,6 @@ def obj_post_notes():
 
 
 @pytest.fixture
-def token(obj_login):
-    response = obj_login.login("loginpermonents@yandex.ru", "qwerty123")
-    return response.json()["token"]
-
-
-@pytest.fixture
-def auth_headers(token):
-    return {"Authorization": f"Bearer {token}"}
-
-
-@pytest.fixture
 def create_notes(obj_post_notes, auth_headers):
     return obj_post_notes.create_note(auth_headers, generate_note_content(), generate_note_title())
 
@@ -54,3 +43,14 @@ def cleanup_note(obj_delete_notes, auth_headers):
     yield note_ids.append
     for note_id in note_ids:
         obj_delete_notes.delete_note(note_id, auth_headers)
+
+
+@pytest.fixture
+def token(obj_login):
+    response = obj_login.login("loginpermonents@yandex.ru", "qwerty123")
+    return response.json()["token"]
+
+
+@pytest.fixture
+def auth_headers(token):
+    return {"Authorization": f"Bearer {token}"}
