@@ -1,9 +1,15 @@
-from api.base_api import BaseApi
+from api.authorized_api import AuthorizedApi
 
 
-class PostNotesApi(BaseApi):
+class PostNotesApi(AuthorizedApi):
     ENDPOINT = "api/notes"
 
-    def create_note(self, headers, content: str, title: str):
+
+    def headers(self):
+        if self.token is None:
+            return None
+        return {"Authorization": f"Bearer {self.token}"}
+
+    def create_note(self, content: str, title: str):
         json = {"content": content, "title": title}
-        return self.post(self.ENDPOINT, json=json, headers=headers)
+        return self.post(self.ENDPOINT, json=json, headers=self.headers())

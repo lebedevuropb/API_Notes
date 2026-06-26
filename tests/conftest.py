@@ -18,18 +18,18 @@ def login_api():
 
 
 @pytest.fixture
-def get_note_api():
-    return GetNote()
+def get_note_api(token):
+    return GetNote(token)
 
 
 @pytest.fixture
-def delete_note_api():
-    return DeleteNotesApi()
+def delete_note_api(token):
+    return DeleteNotesApi(token)
 
 
 @pytest.fixture
-def post_note_api():
-    return PostNotesApi()
+def post_note_api(token):
+    return PostNotesApi(token)
 
 
 @pytest.fixture
@@ -39,32 +39,43 @@ def token(login_api):
 
 
 @pytest.fixture
-def auth_headers(token):
-    return {"Authorization": f"Bearer {token}"}
+def none_token():
+    return {
+        "get": GetNote(None),
+        "post": PostNotesApi(None),
+        "delete": DeleteNotesApi(None),
+    }
 
 
 @pytest.fixture
-def created_note(post_note_api, get_note_api, auth_headers):
+def invalid_token():
+    return {
+        "get": GetNote("difgjerejklf"),
+        "post": PostNotesApi("difgjerejklf"),
+        "delete": DeleteNotesApi("difgjerejklf"),
+    }
+
+
+@pytest.fixture
+def created_note(post_note_api, get_note_api):
     title = generate_note_title()
-    content = generate_note_content()
-    post_note_api.create_note(auth_headers, content, title)
-    note = get_note_api.find_note_by_title(auth_headers, title)
-    yield {"id": note["id"], "title": title}
+    post_note_api.create_note(generate_note_content(), title)
+    note_id = get_note_api.get_note_by_title(title)
+    return note_id["id"]
 
 
 @pytest.fixture
-def note_for_delete(post_note_api, get_note_api, delete_note_api, auth_headers):
-    title = generate_note_title()
-    content = generate_note_content()
-    post_note_api.create_note(auth_headers, content, title)
-    note = get_note_api.find_note_by_title(auth_headers, title)
-    yield note["id"]
-    delete_note_api.delete_note(note["id"], auth_headers)
+def cleanup_created_note(get_note_api, delete_note_api):
+    notes_before = get_note_api.get_note().json()
+    ids_before = [note["id"] for note in notes_before]
+    yield
+    notes_after = get_note_api.get_note().json()
+    for note in notes_after:
+        if note["id"] not in ids_before:
+            delete_note_api.delete_note(note["id"])
 
 
 @pytest.fixture
-def cleanup_note(delete_note_api, auth_headers):
-    note_ids = []
-    yield note_ids.append
-    for note_id in note_ids:
-        delete_note_api.delete_note(note_id, auth_headers)
+def cleanup_get_note(post_note_api, cleanup_created_note):
+    post_note_api.create_note(generate_note_content(), generate_note_title())
+    yield

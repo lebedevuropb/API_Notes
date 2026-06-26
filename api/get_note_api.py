@@ -1,14 +1,14 @@
-from api.base_api import BaseApi
+from api.authorized_api import AuthorizedApi
 
 
-class GetNote(BaseApi):
+class GetNote(AuthorizedApi):
     ENDPOINT = "api/notes"
 
-    def get_note(self, headers):
-        return self.get(self.ENDPOINT, headers)
+    def get_note(self):
+        return self.get(self.ENDPOINT, headers=self.headers())
 
-    def find_note_by_title(self, headers, title: str):
-        notes = self.get_note(headers).json()
+    def get_note_by_title(self, title):
+        notes = self.get_note().json()
         for note in notes:
             if note["title"] == title:
                 return note
