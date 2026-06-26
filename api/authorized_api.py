@@ -5,7 +5,9 @@ class AuthorizedApi(BaseApi):
     def __init__(self, token):
         self.token = token
 
-    def headers(self):
-        if self.token is None:
+    def headers(self, token=None):
+        if token is None:
+            token = self.token
+        if token is None:
             return None
-        return {"Authorization": f"Bearer {self.token}"}
+        return {"Authorization": f"Bearer {token}"}

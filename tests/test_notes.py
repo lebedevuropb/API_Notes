@@ -57,12 +57,8 @@ def test_create_note_unauthorized(none_token):
 
 
 # Создание заметки с невалидным токеном
-def test_create_note_forbidden(post_note_api):
-    response = post_note_api.create_note(
-        {"Authorization": "Bearer invalid_token"},
-        generate_note_content(),
-        generate_note_title()
-    )
+def test_create_note_forbidden(invalid_token):
+    response = invalid_token["delete"].delete_note(5321)
 
     assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
     assert response.json()["message"] == "Token is invalid or expired!", \
@@ -70,17 +66,17 @@ def test_create_note_forbidden(post_note_api):
 
 
 # Удаление заметки без токена
-def test_delete_note_unauthorized(delete_note_api):
-    response = delete_note_api.delete_note(5019, None)
+def test_delete_note_unauthorized(none_token):
+    response = none_token["delete"].delete_note(5321)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
 
 
-# Удаление заметки с невалидным токеном
-def test_delete_note_forbidden(delete_note_api):
-    response = delete_note_api.delete_note(5319, {"Authorization": "Bearer 3284234"})
+# Удаление заметки пользователю не преналежит
+def test_delete_note_not_authorized(delete_note_not_authorized, delete_note_api):
+    response = delete_note_api.delete_note(delete_note_not_authorized)
 
-    assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
-    assert response.json()["message"] == "Token is invalid or expired!", \
-        "Отсутствует сообщение 'Token is invalid or expired!'"
+    assert response.status_code == 409, f"Ожидался статус 409, получен {response.status_code}"
+    assert response.json()["message"] == "Not authorized to delete this note", \
+        "Отсутствует сообщение «Not authorized to delete this note»"

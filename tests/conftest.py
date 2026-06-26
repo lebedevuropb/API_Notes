@@ -79,3 +79,15 @@ def cleanup_created_note(get_note_api, delete_note_api):
 def cleanup_get_note(post_note_api, cleanup_created_note):
     post_note_api.create_note(generate_note_content(), generate_note_title())
     yield
+
+
+@pytest.fixture
+def delete_note_not_authorized(login_api, get_note_api, post_note_api, delete_note_api):
+    token_guest = login_api.login("testcreatenotauthorized@yandex.ru", "qwerty123").json()["token"]
+    title = generate_note_title()
+    post_note_api.create_note(generate_note_content(), title, token=token_guest)
+    note_guest = get_note_api.get_note_by_title(title, token=token_guest)
+
+    yield note_guest["id"]
+
+    delete_note_api.delete_note(note_guest["id"], token=token_guest)
