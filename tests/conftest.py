@@ -1,87 +1,70 @@
 import pytest
-from login_api import LoginAPI
-from register_api import RegisterAPI
-from notes_api import Notes
-from post_notes_api import Post_notesAPI
-from delete_notes_api import Delete_notesAPI
-from tests.generation import generate_email, generate_username, generate_password, generate_note_content
-from tests.generation import generate_note_title
+from api.login_api import LoginApi
+from api.register_api import RegisterApi
+from api.get_note_api import GetNote
+from api.post_notes_api import PostNotesApi
+from api.delete_notes_api import DeleteNotesApi
+from utils.generation import generate_note_title, generate_note_content
 
 
 @pytest.fixture
-def obj_token(obj_login):
-    response = obj_login.login("loginpermonents@yandex.ru", "qwerty123")
-    token = response.json()["token"]
+def register_api():
+    return RegisterApi()
+
+
+@pytest.fixture
+def login_api():
+    return LoginApi()
+
+
+@pytest.fixture
+def get_note_api():
+    return GetNote()
+
+
+@pytest.fixture
+def delete_note_api():
+    return DeleteNotesApi()
+
+
+@pytest.fixture
+def post_note_api():
+    return PostNotesApi()
+
+
+@pytest.fixture
+def token(login_api):
+    response = login_api.login("loginpermonents@yandex.ru", "qwerty123")
+    return response.json()["token"]
+
+
+@pytest.fixture
+def auth_headers(token):
     return {"Authorization": f"Bearer {token}"}
 
-# @pytest.fixture
-# def obj_token_random(obj_login):
-#     response = obj_login.login("loginpermonents@yandex.ru", "qwerty123")
-#     token = response.json()["token"]
-#     return {"Authorization": f"Bearer {token}"}
+
+@pytest.fixture
+def created_note(post_note_api, get_note_api, auth_headers):
+    title = generate_note_title()
+    content = generate_note_content()
+    post_note_api.create_note(auth_headers, content, title)
+    note = get_note_api.find_note_by_title(auth_headers, title)
+    yield {"id": note["id"], "title": title}
 
 
 @pytest.fixture
-def random_user():
-    return {
-        "email": generate_email(),
-        "password": generate_password(),
-        "username": generate_username()
-    }
+def note_for_delete(post_note_api, get_note_api, delete_note_api, auth_headers):
+    title = generate_note_title()
+    content = generate_note_content()
+    post_note_api.create_note(auth_headers, content, title)
+    note = get_note_api.find_note_by_title(auth_headers, title)
+    yield note["id"]
+    delete_note_api.delete_note(note["id"], auth_headers)
 
 
 @pytest.fixture
-def obj_random_register(obj_register):
-    return obj_register.register(generate_email(), generate_password(), generate_username())
-
-
-@pytest.fixture
-def obj_authorization(obj_login):
-    return obj_login.login("loginpermonents@yandex.ru", "qwerty123")
-
-
-@pytest.fixture
-def obj_register():
-    return RegisterAPI()
-
-
-@pytest.fixture
-def obj_login():
-    return LoginAPI()
-
-
-@pytest.fixture
-def obj_get_notes():
-    return Notes()
-
-
-@pytest.fixture
-def obj_delete_notes():
-    return Delete_notesAPI()
-
-# @pytest.fixture
-# def notes_id(obj_random_register):
-#     return obj_random_register.json()[0]["id"]
-
-# @pytest.fixture
-# def obj_delete(obj_delete_notes, notes_id, obj_token):
-#     pass
-
-
-@pytest.fixture
-def obj_list_notes(obj_get_notes, obj_token):
-    response = obj_get_notes.get_notes(obj_token)
-    return response.json()["data"]
-
-
-@pytest.fixture
-def obj_create_notes(obj_post_notes, obj_token, obj_get_notes, obj_delete_notes):
-    response = obj_post_notes.create_notes(obj_token, generate_note_content(), generate_note_title())
-    note_id = obj_get_notes.get_notes(obj_token).json()[0]["id"]
-    yield response
-    obj_delete_notes.delete_notes(note_id, obj_token)
-
-
-@pytest.fixture
-def obj_post_notes():
-    return Post_notesAPI()
+def cleanup_note(delete_note_api, auth_headers):
+    note_ids = []
+    yield note_ids.append
+    for note_id in note_ids:
+        delete_note_api.delete_note(note_id, auth_headers)
