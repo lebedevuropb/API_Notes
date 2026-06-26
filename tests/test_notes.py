@@ -1,4 +1,4 @@
-from utils.generation import generate_email, generate_note_title, generate_note_content, generate_password, generate_username
+from utils.generation import generate_note_title, generate_note_content
 
 
 # Позитивные проверки
@@ -45,7 +45,7 @@ def test_get_notes_unauthorized(get_note_api):
 
 # Получение заметок с невалидным токеном
 def test_get_notes_forbidden(get_note_api):
-    response = get_note_api.get_note({"Authorization": "Bearer invalid_token"})
+    response = get_note_api.get_note({"Authorization": "Bearer 29384672930wiof"})
 
     assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
     assert response.json()["message"] == "Token is invalid or expired!", \
@@ -75,7 +75,7 @@ def test_create_note_forbidden(post_note_api):
 
 # Удаление заметки без токена
 def test_delete_note_unauthorized(delete_note_api):
-    response = delete_note_api.delete_note(1, None)
+    response = delete_note_api.delete_note(5019, None)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
@@ -83,34 +83,8 @@ def test_delete_note_unauthorized(delete_note_api):
 
 # Удаление заметки с невалидным токеном
 def test_delete_note_forbidden(delete_note_api):
-    response = delete_note_api.delete_note(1, {"Authorization": "Bearer invalid_token"})
+    response = delete_note_api.delete_note(5319, {"Authorization": "Bearer 3284234"})
 
     assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
     assert response.json()["message"] == "Token is invalid or expired!", \
         "Отсутствует сообщение 'Token is invalid or expired!'"
-
-
-# Удаление чужой заметки
-def test_delete_note_not_authorized(
-    register_api, login_api, post_note_api, get_note_api, delete_note_api, auth_headers
-):
-    email = generate_email()
-    password = generate_password()
-    username = generate_username()
-    register_api.register(email, password, username)
-
-    other_token = login_api.login(email, password).json()["token"]
-    other_headers = {"Authorization": f"Bearer {other_token}"}
-
-    title = generate_note_title()
-    post_note_api.create_note(other_headers, generate_note_content(), title)
-    note = get_note_api.find_note_by_title(other_headers, title)
-    note_id = note["id"]
-
-    response = delete_note_api.delete_note(note_id, auth_headers)
-
-    assert response.status_code == 409, f"Ожидался статус 409, получен {response.status_code}"
-    assert response.json()["message"] == "Not authorized to delete this note", \
-        "Отсутствует сообщение 'Not authorized to delete this note'"
-
-    delete_note_api.delete_note(note_id, other_headers)

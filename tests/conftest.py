@@ -7,7 +7,6 @@ from api.delete_notes_api import DeleteNotesApi
 from utils.generation import generate_note_title, generate_note_content
 
 
-# Инициализация API-клиентов
 @pytest.fixture
 def register_api():
     return RegisterApi()
@@ -33,7 +32,6 @@ def post_note_api():
     return PostNotesApi()
 
 
-# Токен
 @pytest.fixture
 def token(login_api):
     response = login_api.login("loginpermonents@yandex.ru", "qwerty123")
@@ -45,7 +43,6 @@ def auth_headers(token):
     return {"Authorization": f"Bearer {token}"}
 
 
-# Пред- и постусловия
 @pytest.fixture
 def created_note(post_note_api, get_note_api, auth_headers):
     title = generate_note_title()
