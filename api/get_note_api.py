@@ -5,7 +5,9 @@ class GetNote(AuthorizedApi):
     ENDPOINT = "api/notes"
 
     def get_note(self, token=None):
-        return self.get(self.ENDPOINT, headers=self.headers(token))
+        if token is None:
+            return self.get(self.ENDPOINT)
+        return self.get(self.ENDPOINT, headers=self.token(token))
 
     def get_note_by_title(self, title, token=None):
         notes = self.get_note(token=token).json()
