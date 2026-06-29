@@ -5,7 +5,6 @@ from api.get_note_api import GetNote
 from api.post_notes_api import PostNotesApi
 from api.delete_notes_api import DeleteNotesApi
 from utils.generation import generate_note_title, generate_note_content
-from api.authorized_api import AuthorizedApi
 
 
 @pytest.fixture
@@ -16,11 +15,6 @@ def register_api():
 @pytest.fixture
 def login_api():
     return LoginApi()
-
-
-@pytest.fixture
-def authorized_api():
-    return AuthorizedApi()
 
 
 @pytest.fixture
@@ -41,8 +35,7 @@ def post_note_api():
 @pytest.fixture
 def token(login_api):
     def get_token(email, password):
-        response = login_api.login(email, password)
-        return response.json()["token"]
+        return login_api.get_token(email, password)
 
     return get_token
 
@@ -50,6 +43,11 @@ def token(login_api):
 @pytest.fixture
 def user_token(token):
     return token("loginpermonents@yandex.ru", "qwerty123")
+
+
+@pytest.fixture
+def second_token(token):
+    return token("testcreatenotauthorized@yandex.ru", "qwerty123")
 
 
 @pytest.fixture
@@ -67,12 +65,12 @@ def invalid_token():
         "get": GetNote(),
         "post": PostNotesApi(),
         "delete": DeleteNotesApi(),
-        "token": "difgjerejklf"
+        "token": {"Authorization": "Bearer difgjerejklf"}
     }
 
 
 @pytest.fixture
-def created_note(post_note_api, get_note_api, user_token):
+def id_note(post_note_api, get_note_api, user_token):
     title = generate_note_title()
     post_note_api.create_note(generate_note_content(), title, token=user_token)
     note_id = get_note_api.get_note_by_title(title, token=user_token)
@@ -80,29 +78,14 @@ def created_note(post_note_api, get_note_api, user_token):
 
 
 @pytest.fixture
-def cleanup_created_note(get_note_api, delete_note_api, user_token):
-    notes_before = get_note_api.get_note(token=user_token).json()
-    ids_before = [note["id"] for note in notes_before]
-    yield
-    notes_after = get_note_api.get_note(token=user_token).json()
-    for note in notes_after:
-        if note["id"] not in ids_before:
-            delete_note_api.delete_note(note["id"], token=user_token)
+def teardown_note(delete_note_api, user_token):
+    note_ids = []
+    yield note_ids
+    for note_id in note_ids:
+        delete_note_api.delete_note(note_id, token=user_token)
 
 
 @pytest.fixture
-def cleanup_get_note(post_note_api, cleanup_created_note, user_token):
-    post_note_api.create_note(generate_note_content(), generate_note_title(), token=user_token)
-    yield
-
-
-@pytest.fixture
-def delete_note_not_authorized(login_api, get_note_api, post_note_api, delete_note_api):
-    token_guest = login_api.login("testcreatenotauthorized@yandex.ru", "qwerty123").json()["token"]
-    title = generate_note_title()
-    post_note_api.create_note(generate_note_content(), title, token=token_guest)
-    note_guest = get_note_api.get_note_by_title(title, token=token_guest)
-
-    yield note_guest["id"]
-
-    delete_note_api.delete_note(note_guest["id"], token=token_guest)
+def setup_teardown_note(id_note, teardown_note):
+    teardown_note.append(id_note)
+    return id_note

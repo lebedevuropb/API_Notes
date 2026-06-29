@@ -4,15 +4,18 @@ from utils.generation import generate_note_title, generate_note_content
 # Позитивные проверки
 
 # Создание заметки
-def test_create_note(cleanup_created_note, post_note_api, user_token):
-    response = post_note_api.create_note(generate_note_content(), generate_note_title(), token=user_token)
+def test_create_note(teardown_note, post_note_api, get_note_api, user_token):
+    title = generate_note_title()
+    response = post_note_api.create_note(generate_note_content(), title, token=user_token)
+    note = get_note_api.get_note_by_title(title, token=user_token)
+    teardown_note.append(note["id"])
 
     assert response.status_code == 201, f"Ожидался статус 201, получен {response.status_code}"
     assert response.json()["message"] == "Заметка создана!", "Отсутствует сообщение 'Заметка создана!'"
 
 
 # Проверка заметки
-def test_get_all_notes(get_note_api, cleanup_get_note, user_token):
+def test_get_all_notes(get_note_api, setup_teardown_note, user_token):
     response = get_note_api.get_note(token=user_token)
     notes = response.json()
 
@@ -22,8 +25,8 @@ def test_get_all_notes(get_note_api, cleanup_get_note, user_token):
 
 
 # Проверка удаления
-def test_delete_note(created_note, delete_note_api, user_token):
-    response = delete_note_api.delete_note(created_note, token=user_token)
+def test_delete_note(id_note, delete_note_api, user_token):
+    response = delete_note_api.delete_note(id_note, token=user_token)
 
     assert response.status_code == 200, f"Ожидался статус 200, получен {response.status_code}"
     assert response.json()["message"] == "Note deleted!", "Отсутствует сообщение «Note deleted»"
@@ -74,8 +77,8 @@ def test_delete_note_unauthorized(none_token):
 
 
 # Удаление заметки пользователю не преналежит
-def test_delete_note_not_authorized(delete_note_not_authorized, delete_note_api, user_token):
-    response = delete_note_api.delete_note(delete_note_not_authorized, token=user_token)
+def test_del_notes_resource_conflict(setup_teardown_note, second_token, delete_note_api):
+    response = delete_note_api.delete_note(setup_teardown_note, token=second_token)
 
     assert response.status_code == 409, f"Ожидался статус 409, получен {response.status_code}"
     assert response.json()["message"] == "Not authorized to delete this note", \

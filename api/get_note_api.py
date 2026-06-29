@@ -1,13 +1,13 @@
-from api.authorized_api import AuthorizedApi
+from api.base_api import BaseApi
 
 
-class GetNote(AuthorizedApi):
+class GetNote(BaseApi):
     ENDPOINT = "api/notes"
 
     def get_note(self, token=None):
         if token is None:
             return self.get(self.ENDPOINT)
-        return self.get(self.ENDPOINT, headers=self.token(token))
+        return self.get(self.ENDPOINT, headers=token)
 
     def get_note_by_title(self, title, token=None):
         notes = self.get_note(token=token).json()

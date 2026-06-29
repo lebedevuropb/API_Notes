@@ -1,10 +1,10 @@
-from api.authorized_api import AuthorizedApi
+from api.base_api import BaseApi
 
 
-class DeleteNotesApi(AuthorizedApi):
+class DeleteNotesApi(BaseApi):
     ENDPOINT = "api/notes/"
 
     def delete_note(self, note_id, token=None):
         if token is None:
-            return self.get(self.ENDPOINT)
-        return self.delete(self.ENDPOINT, note_id, headers=self.token(token))
+            return self.delete(self.ENDPOINT, note_id, headers=None)
+        return self.delete(self.ENDPOINT, note_id, headers=token)
