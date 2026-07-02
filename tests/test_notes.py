@@ -35,16 +35,16 @@ def test_delete_note(id_note, delete_note_api, user_token):
 # Негативные проверки
 
 # Получение заметок без токена
-def test_get_notes_unauthorized(none_token):
-    response = none_token["get"].get_note()
+def test_get_notes_unauthorized(get_note_api):
+    response = get_note_api.get_note()
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
 
 
 # Получение заметок с невалидным токеном
-def test_get_notes_forbidden(invalid_token):
-    response = invalid_token["get"].get_note(token=invalid_token["token"])
+def test_get_notes_forbidden(get_note_api):
+    response = get_note_api.get_note(token={"Authorization": "Bearer invalid_token"})
 
     assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
     assert response.json()["message"] == "Token is invalid or expired!", \
@@ -52,16 +52,20 @@ def test_get_notes_forbidden(invalid_token):
 
 
 # Создание заметки без токена
-def test_create_note_unauthorized(none_token):
-    response = none_token["post"].create_note(generate_note_content(), generate_note_title())
+def test_create_note_unauthorized(post_note_api):
+    response = post_note_api.create_note(generate_note_content(), generate_note_title())
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
 
 
 # Создание заметки с невалидным токеном
-def test_create_note_forbidden(invalid_token):
-    response = invalid_token["delete"].delete_note(5321, token=invalid_token["token"])
+def test_create_note_forbidden(post_note_api):
+    response = post_note_api.create_note(
+        generate_note_content(),
+        generate_note_title(),
+        token={"Authorization": "Bearer invalid_token"}
+    )
 
     assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
     assert response.json()["message"] == "Token is invalid or expired!", \
@@ -69,8 +73,8 @@ def test_create_note_forbidden(invalid_token):
 
 
 # Удаление заметки без токена
-def test_delete_note_unauthorized(none_token):
-    response = none_token["delete"].delete_note(5477)
+def test_delete_note_unauthorized(delete_note_api):
+    response = delete_note_api.delete_note(5477)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"

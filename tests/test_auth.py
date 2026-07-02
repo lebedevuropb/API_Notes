@@ -25,8 +25,8 @@ def test_register(register_api):
 def test_register_bad_request(register_api):
     response = register_api.register("1", 435231, "Username")
 
-    assert response.status_code == 500, \
-        f"Ожидался статус 500, получен {response.status_code}, в сваггере 400, но 400 не вызывается"
+    assert response.status_code == 400, \
+        f"Ожидался статус 400, получен {response.status_code}"
 
 
 # Тест проверки уже существующего email

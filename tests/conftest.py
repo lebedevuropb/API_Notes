@@ -5,6 +5,7 @@ from api.get_note_api import GetNote
 from api.post_notes_api import PostNotesApi
 from api.delete_notes_api import DeleteNotesApi
 from utils.generation import generate_note_title, generate_note_content
+from config.credentials import EMAIL, PASSWORD
 
 
 @pytest.fixture
@@ -33,40 +34,15 @@ def post_note_api():
 
 
 @pytest.fixture
-def token(login_api):
-    def get_token(email, password):
-        return login_api.get_token(email, password)
-
-    return get_token
+def user_token(login_api):
+    response = login_api.get_token(EMAIL, PASSWORD)
+    return response
 
 
 @pytest.fixture
-def user_token(token):
-    return token("loginpermonents@yandex.ru", "qwerty123")
-
-
-@pytest.fixture
-def second_token(token):
-    return token("testcreatenotauthorized@yandex.ru", "qwerty123")
-
-
-@pytest.fixture
-def none_token():
-    return {
-        "get": GetNote(),
-        "post": PostNotesApi(),
-        "delete": DeleteNotesApi()
-    }
-
-
-@pytest.fixture
-def invalid_token():
-    return {
-        "get": GetNote(),
-        "post": PostNotesApi(),
-        "delete": DeleteNotesApi(),
-        "token": {"Authorization": "Bearer difgjerejklf"}
-    }
+def second_token(login_api):
+    response = login_api.get_token("testcreatenotauthorized@yandex.ru", "qwerty123")
+    return response
 
 
 @pytest.fixture
