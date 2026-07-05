@@ -19,9 +19,8 @@ def test_get_all_notes(get_note_api, setup_teardown_note, user_token):
     response = get_note_api.get_note(token=user_token)
     notes = response.json()
 
-    for note in notes:
-        assert "content" in note, "В одной из заметок отсутствует поле «content»"
     assert response.status_code == 200, f"Ожидался статус 200, получен {response.status_code}"
+    assert len(notes) > 0, "Список заметок пуст"
 
 
 # Проверка удаления
@@ -31,8 +30,13 @@ def test_delete_note(id_note, delete_note_api, user_token):
     assert response.status_code == 200, f"Ожидался статус 200, получен {response.status_code}"
     assert response.json()["message"] == "Note deleted!", "Отсутствует сообщение «Note deleted»"
 
+    response = delete_note_api.delete_note(id_note, token=user_token)
+
+    assert response.status_code == 404, f"Ожидался статус 404 при повторном удалении, получен {response.status_code}"
+
 
 # Негативные проверки
+
 
 # Получение заметок без токена
 def test_get_notes_unauthorized(get_note_api):
@@ -73,8 +77,8 @@ def test_create_note_forbidden(post_note_api):
 
 
 # Удаление заметки без токена
-def test_delete_note_unauthorized(delete_note_api):
-    response = delete_note_api.delete_note(5477)
+def test_delete_note_unauthorized(delete_note_api, setup_teardown_note):
+    response = delete_note_api.delete_note(setup_teardown_note)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"

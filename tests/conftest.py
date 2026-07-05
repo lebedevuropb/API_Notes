@@ -5,7 +5,7 @@ from api.get_note_api import GetNote
 from api.post_notes_api import PostNotesApi
 from api.delete_notes_api import DeleteNotesApi
 from utils.generation import generate_note_title, generate_note_content
-from config.credentials import EMAIL, PASSWORD
+from config.credentials import EMAIL, PASSWORD, SECOND_EMAIL
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def user_token(login_api):
 
 @pytest.fixture
 def second_token(login_api):
-    response = login_api.get_token("testcreatenotauthorized@yandex.ru", "qwerty123")
+    response = login_api.get_token(SECOND_EMAIL, PASSWORD)
     return response
 
 
