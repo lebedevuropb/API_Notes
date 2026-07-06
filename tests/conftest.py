@@ -5,7 +5,7 @@ from api.get_note_api import GetNote
 from api.post_notes_api import PostNotesApi
 from api.delete_notes_api import DeleteNotesApi
 from utils.generation import generate_note_title, generate_note_content
-from config.credentials import EMAIL, PASSWORD, SECOND_EMAIL
+from config.credentials import EMAIL, PASSWORD, SECOND_EMAIL, INVALID_TOKEN
 
 
 @pytest.fixture
@@ -19,8 +19,28 @@ def login_api():
 
 
 @pytest.fixture
-def get_note_api():
-    return GetNote()
+def get_note_api(user_token):
+    return GetNote(user_token)
+
+
+@pytest.fixture
+def get_note_api_without_token():
+    return GetNote(None)
+
+
+@pytest.fixture
+def get_note_api_with_invalid_token():
+    return GetNote(INVALID_TOKEN)
+
+
+@pytest.fixture
+def post_note_api_without_token():
+    return PostNotesApi(None)
+
+
+@pytest.fixture
+def post_note_api_with_invalid_token():
+    return PostNotesApi(INVALID_TOKEN)
 
 
 @pytest.fixture
@@ -29,8 +49,8 @@ def delete_note_api():
 
 
 @pytest.fixture
-def post_note_api():
-    return PostNotesApi()
+def post_note_api(user_token):
+    return PostNotesApi(user_token)
 
 
 @pytest.fixture
@@ -46,10 +66,10 @@ def second_token(login_api):
 
 
 @pytest.fixture
-def id_note(post_note_api, get_note_api, user_token):
+def id_note(post_note_api, get_note_api):
     title = generate_note_title()
-    post_note_api.create_note(generate_note_content(), title, token=user_token)
-    note_id = get_note_api.get_note_by_title(title, token=user_token)
+    post_note_api.create_note(generate_note_content(), title)
+    note_id = get_note_api.get_note_by_title(title)
     return note_id["id"]
 
 

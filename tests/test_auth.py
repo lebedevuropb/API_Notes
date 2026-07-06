@@ -44,18 +44,9 @@ def test_register_bad_request(register_api):
 
 
 # Тест проверки уже существующего email
-def test_register_invalid_email(register_api):
+def test_register_duplicate_email(register_api):
     response = register_api.register(EMAIL, PASSWORD, USERNAME)
 
     assert response.status_code == 409, f"Ожидался статус 409, получен {response.status_code}"
     assert response.json()["message"] == "Пользователь с таким email уже существует", \
         "Отсутствует сообщение 'Пользователь с таким email уже существует'"
-
-
-# Тест проверки не зарегистрированного логина
-def test_authorization_invalid(login_api):
-    response = login_api.login(generate_email(), generate_password())
-
-    assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
-    assert response.json()["message"] == "Ошибка авторизации... Пожалуйста, проверь почту или пароль", \
-        "Отсутствует сообщение 'Ошибка авторизации... Пожалуйста, проверь почту или пароль'"

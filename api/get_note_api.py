@@ -4,13 +4,14 @@ from api.base_api import BaseApi
 class GetNote(BaseApi):
     ENDPOINT = "api/notes"
 
-    def get_note(self, token=None):
-        if token is None:
-            return self.get(self.ENDPOINT)
-        return self.get(self.ENDPOINT, headers=token)
+    def __init__(self, token):
+        self.token = token
 
-    def get_note_by_title(self, title, token=None):
-        notes = self.get_note(token=token).json()
+    def get_note(self):
+        return self.get(self.ENDPOINT, headers=self.token)
+
+    def get_note_by_title(self, title):
+        notes = self.get_note().json()
         for note in notes:
             if note["title"] == title:
                 return note
