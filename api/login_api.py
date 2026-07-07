@@ -6,8 +6,8 @@ class LoginApi(BaseApi):
 
     def login(self, email: str, password: str):
         json = {"email": email, "password": password}
-        return self.post(self.ENDPOINT, json)
+        return self._requests(method="POST", endpoint=self.ENDPOINT, json=json)
 
     def get_token(self, email, password):
         response_json = self.login(email, password).json()
-        return {"Authorization": f"Bearer {response_json['token']}"}
+        return response_json["token"]

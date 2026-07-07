@@ -9,4 +9,4 @@ class PostNotesApi(BaseApi):
 
     def create_note(self, content: str, title: str):
         json = {"content": content, "title": title}
-        return self.post(self.ENDPOINT, json=json, headers=self.token)
+        return self._requests(method="POST", endpoint=self.ENDPOINT, need_token=bool(self.token), json=json)

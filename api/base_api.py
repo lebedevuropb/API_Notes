@@ -3,12 +3,22 @@ import requests
 
 class BaseApi:
     BASE_URL = "http://185.240.103.201:8000/"
+    token = None
 
-    def get(self, endpoint, headers=None):
-        return requests.get(f"{self.BASE_URL}{endpoint}", headers=headers)
+    def _requests(self, method: str, endpoint=None, note_id=None, need_token=False, json=None):
+        if note_id:
+            url = f"{self.BASE_URL}{endpoint}/{note_id}"
+        else:
+            url = f"{self.BASE_URL}{endpoint}"
+        return requests.request(method, url=url, headers=self._header(need_token), json=json)
 
-    def post(self, endpoint, json, headers=None):
-        return requests.post(f"{self.BASE_URL}{endpoint}", json=json, headers=headers)
-
-    def delete(self, endpoint, note_id, headers):
-        return requests.delete(f"{self.BASE_URL}{endpoint}{note_id}", headers=headers)
+    def _header(self, need_token=False):
+        if need_token:
+            return {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.token}"}
+        else:
+            return {
+                "Accept": "application/json",
+                "Content-Type": "application/json"}

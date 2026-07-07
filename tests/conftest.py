@@ -5,7 +5,7 @@ from api.get_note_api import GetNote
 from api.post_notes_api import PostNotesApi
 from api.delete_notes_api import DeleteNotesApi
 from utils.generation import generate_note_title, generate_note_content
-from config.credentials import EMAIL, PASSWORD, SECOND_EMAIL, INVALID_TOKEN
+from config.credentials import EMAIL, PASSWORD, SECOND_EMAIL
 
 
 @pytest.fixture
@@ -19,42 +19,22 @@ def login_api():
 
 
 @pytest.fixture
-def get_note_api(user_token):
-    return GetNote(user_token)
+def get_note_api(token):
+    return GetNote(token)
 
 
 @pytest.fixture
-def get_note_api_without_token():
-    return GetNote(None)
+def delete_note_api(token):
+    return DeleteNotesApi(token)
 
 
 @pytest.fixture
-def get_note_api_with_invalid_token():
-    return GetNote(INVALID_TOKEN)
+def post_note_api(token):
+    return PostNotesApi(token)
 
 
 @pytest.fixture
-def post_note_api_without_token():
-    return PostNotesApi(None)
-
-
-@pytest.fixture
-def post_note_api_with_invalid_token():
-    return PostNotesApi(INVALID_TOKEN)
-
-
-@pytest.fixture
-def delete_note_api():
-    return DeleteNotesApi()
-
-
-@pytest.fixture
-def post_note_api(user_token):
-    return PostNotesApi(user_token)
-
-
-@pytest.fixture
-def user_token(login_api):
+def token(login_api):
     response = login_api.get_token(EMAIL, PASSWORD)
     return response
 
@@ -74,11 +54,11 @@ def id_note(post_note_api, get_note_api):
 
 
 @pytest.fixture
-def teardown_note(delete_note_api, user_token):
+def teardown_note(delete_note_api):
     note_ids = []
     yield note_ids
     for note_id in note_ids:
-        delete_note_api.delete_note(note_id, token=user_token)
+        delete_note_api.delete_note(note_id)
 
 
 @pytest.fixture

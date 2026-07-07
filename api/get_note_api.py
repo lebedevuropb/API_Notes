@@ -8,7 +8,7 @@ class GetNote(BaseApi):
         self.token = token
 
     def get_note(self):
-        return self.get(self.ENDPOINT, headers=self.token)
+        return self._requests(method="GET", endpoint=self.ENDPOINT, need_token=bool(self.token))
 
     def get_note_by_title(self, title):
         notes = self.get_note().json()

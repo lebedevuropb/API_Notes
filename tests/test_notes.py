@@ -1,10 +1,14 @@
+from api.get_note_api import GetNote
+from api.post_notes_api import PostNotesApi
+from api.delete_notes_api import DeleteNotesApi
+from config.credentials import INVALID_TOKEN
 from utils.generation import generate_note_title, generate_note_content
 
 
 # Позитивные проверки
 
 # Создание заметки
-def test_create_note(teardown_note, post_note_api, get_note_api, user_token):
+def test_create_note(teardown_note, post_note_api, get_note_api):
     title = generate_note_title()
     response = post_note_api.create_note(generate_note_content(), title)
     note = get_note_api.get_note_by_title(title)
@@ -24,13 +28,13 @@ def test_get_all_notes(get_note_api, setup_teardown_note):
 
 
 # Проверка удаления
-def test_delete_note(id_note, delete_note_api, user_token):
-    response = delete_note_api.delete_note(id_note, token=user_token)
+def test_delete_note(id_note, delete_note_api):
+    response = delete_note_api.delete_note(id_note)
 
     assert response.status_code == 200, f"Ожидался статус 200, получен {response.status_code}"
     assert response.json()["message"] == "Note deleted!", "Отсутствует сообщение «Note deleted»"
 
-    response = delete_note_api.delete_note(id_note, token=user_token)
+    response = delete_note_api.delete_note(id_note)
 
     assert response.status_code == 404, f"Ожидался статус 404 при повторном удалении, получен {response.status_code}"
 
@@ -39,16 +43,16 @@ def test_delete_note(id_note, delete_note_api, user_token):
 
 
 # Получение заметок без токена
-def test_get_notes_unauthorized(get_note_api_without_token):
-    response = get_note_api_without_token.get_note()
+def test_get_notes_unauthorized():
+    response = GetNote(None).get_note()
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
 
 
 # Получение заметок с невалидным токеном
-def test_get_notes_forbidden(get_note_api_with_invalid_token):
-    response = get_note_api_with_invalid_token.get_note()
+def test_get_notes_forbidden():
+    response = GetNote(INVALID_TOKEN).get_note()
 
     assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
     assert response.json()["message"] == "Token is invalid or expired!", \
@@ -56,16 +60,16 @@ def test_get_notes_forbidden(get_note_api_with_invalid_token):
 
 
 # Создание заметки без токена
-def test_create_note_unauthorized(post_note_api_without_token):
-    response = post_note_api_without_token.create_note(generate_note_content(), generate_note_title())
+def test_create_note_unauthorized():
+    response = PostNotesApi(None).create_note(generate_note_content(), generate_note_title())
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
 
 
 # Создание заметки с невалидным токеном
-def test_create_note_forbidden(post_note_api_with_invalid_token):
-    response = post_note_api_with_invalid_token.create_note(generate_note_content(), generate_note_title())
+def test_create_note_forbidden():
+    response = PostNotesApi(INVALID_TOKEN).create_note(generate_note_content(), generate_note_title())
 
     assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
     assert response.json()["message"] == "Token is invalid or expired!", \
@@ -73,16 +77,16 @@ def test_create_note_forbidden(post_note_api_with_invalid_token):
 
 
 # Удаление заметки без токена
-def test_delete_note_unauthorized(delete_note_api, setup_teardown_note):
-    response = delete_note_api.delete_note(setup_teardown_note)
+def test_delete_note_unauthorized(setup_teardown_note):
+    response = DeleteNotesApi(None).delete_note(setup_teardown_note)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
 
 
 # Удаление заметки пользователю не преналежит
-def test_del_notes_resource_conflict(setup_teardown_note, second_token, delete_note_api):
-    response = delete_note_api.delete_note(setup_teardown_note, token=second_token)
+def test_del_notes_resource_conflict(setup_teardown_note, second_token):
+    response = DeleteNotesApi(second_token).delete_note(setup_teardown_note)
 
     assert response.status_code == 409, f"Ожидался статус 409, получен {response.status_code}"
     assert response.json()["message"] == "Not authorized to delete this note", \

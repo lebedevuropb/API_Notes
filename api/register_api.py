@@ -6,4 +6,4 @@ class RegisterApi(BaseApi):
 
     def register(self, email: str, password: str, username: str):
         json = {"email": email, "password": password, "username": username}
-        return self.post(self.ENDPOINT, json)
+        return self._requests(method="POST", endpoint=self.ENDPOINT, json=json)
