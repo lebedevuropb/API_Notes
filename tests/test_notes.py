@@ -44,7 +44,7 @@ def test_delete_note(id_note, delete_note_api):
 
 # Получение заметок без токена
 def test_get_notes_unauthorized():
-    response = GetNote(None).get_note()
+    response = GetNote(None).get_note(None)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
@@ -61,7 +61,7 @@ def test_get_notes_forbidden():
 
 # Создание заметки без токена
 def test_create_note_unauthorized():
-    response = PostNotesApi(None).create_note(generate_note_content(), generate_note_title())
+    response = PostNotesApi(None).create_note(generate_note_content(), generate_note_title(), None)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
@@ -78,7 +78,7 @@ def test_create_note_forbidden():
 
 # Удаление заметки без токена
 def test_delete_note_unauthorized(setup_teardown_note):
-    response = DeleteNotesApi(None).delete_note(setup_teardown_note)
+    response = DeleteNotesApi(None).delete_note(setup_teardown_note, None)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
