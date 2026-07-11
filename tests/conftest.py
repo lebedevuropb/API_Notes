@@ -5,7 +5,7 @@ from api.get_note_api import GetNote
 from api.post_notes_api import PostNotesApi
 from api.delete_notes_api import DeleteNotesApi
 from utils.generation import generate_note_title, generate_note_content
-from config.credentials import EMAIL, PASSWORD, SECOND_EMAIL
+from config.credentials import EMAIL, PASSWORD, SECOND_EMAIL, INVALID_TOKEN
 
 
 @pytest.fixture
@@ -65,3 +65,13 @@ def teardown_note(delete_note_api):
 def setup_teardown_note(id_note, teardown_note):
     teardown_note.append(id_note)
     return id_note
+
+
+@pytest.fixture
+def invalid_get_note_api():
+    return GetNote(INVALID_TOKEN)
+
+
+@pytest.fixture
+def invalid_post_note_api():
+    return PostNotesApi(INVALID_TOKEN)

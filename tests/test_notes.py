@@ -1,7 +1,4 @@
-from api.get_note_api import GetNote
-from api.post_notes_api import PostNotesApi
 from api.delete_notes_api import DeleteNotesApi
-from config.credentials import INVALID_TOKEN
 from utils.generation import generate_note_title, generate_note_content
 
 
@@ -43,16 +40,16 @@ def test_delete_note(id_note, delete_note_api):
 
 
 # Получение заметок без токена
-def test_get_notes_unauthorized():
-    response = GetNote(None).get_note(None)
+def test_get_notes_unauthorized(get_note_api):
+    response = get_note_api.get_note(False)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
 
 
 # Получение заметок с невалидным токеном
-def test_get_notes_forbidden():
-    response = GetNote(INVALID_TOKEN).get_note()
+def test_get_notes_forbidden(invalid_get_note_api):
+    response = invalid_get_note_api.get_note()
 
     assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
     assert response.json()["message"] == "Token is invalid or expired!", \
@@ -60,16 +57,16 @@ def test_get_notes_forbidden():
 
 
 # Создание заметки без токена
-def test_create_note_unauthorized():
-    response = PostNotesApi(None).create_note(generate_note_content(), generate_note_title(), None)
+def test_create_note_unauthorized(post_note_api):
+    response = post_note_api.create_note(generate_note_content(), generate_note_title(), False)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
 
 
 # Создание заметки с невалидным токеном
-def test_create_note_forbidden():
-    response = PostNotesApi(INVALID_TOKEN).create_note(generate_note_content(), generate_note_title())
+def test_create_note_forbidden(invalid_post_note_api):
+    response = invalid_post_note_api.create_note(generate_note_content(), generate_note_title())
 
     assert response.status_code == 403, f"Ожидался статус 403, получен {response.status_code}"
     assert response.json()["message"] == "Token is invalid or expired!", \
@@ -77,8 +74,8 @@ def test_create_note_forbidden():
 
 
 # Удаление заметки без токена
-def test_delete_note_unauthorized(setup_teardown_note):
-    response = DeleteNotesApi(None).delete_note(setup_teardown_note, None)
+def test_delete_note_unauthorized(setup_teardown_note, delete_note_api):
+    response = delete_note_api.delete_note(setup_teardown_note, False)
 
     assert response.status_code == 401, f"Ожидался статус 401, получен {response.status_code}"
     assert response.json()["message"] == "Token is missing!", "Отсутствует сообщение 'Token is missing!'"
